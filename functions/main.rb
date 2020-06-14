@@ -5,7 +5,7 @@ require 'json'
 require 'slack-notifier'
 
 def zoom
-  # credentials情報から取得
+  # ZoomAPIリクエスト情報を作成
   api_key = 'aaaaaaa'
   secret  = 'bbbbbbb'
   user_id = 'ccccccc'
@@ -21,19 +21,22 @@ def zoom
   req['Authorization'] = "Bearer #{jwt}"
   req['Content-Type'] = 'application/json'
   req.body = { 'type': 1 }.to_json
+
+  # ZoomAPI実行
   res = http.request(req)
-  # response
   puts res.body
 
-  # zoomミーティングのURLのみ取得
+  # レスポンスからzoomミーティングのURLを取得
   parseURL = JSON.parse(res.body)
   body = parseURL['join_url']
 
+  # Slack通知
   slack_notification(body)
 end
 
 def slack_notification(body)
-  notifier = Slack::Notifier.new('https://hooks.slack.com/services/xxxxxxx')
+  slack_webhook = 'https://hooks.slack.com/services/xxxxxxx'
+  notifier = Slack::Notifier.new(slack_webhook)
   text = "ミーティングを作成しました！\n#{body}"
   notifier.ping text
 end
